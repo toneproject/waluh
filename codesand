@@ -1,0 +1,77 @@
+import pygame
+import random
+
+# Inisialisasi Pygame
+pygame.init()
+
+# Ukuran layar
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Warna
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Kecepatan Paddle
+PADDLE_SPEED = 0.5
+
+# Membuat layar game
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Pong Game")
+
+# Inisialisasi posisi paddle
+player_paddle_pos = [50, SCREEN_HEIGHT // 2 - 60]
+enemy_paddle_pos = [SCREEN_WIDTH - 50, SCREEN_HEIGHT // 2 - 60]
+
+# Inisialisasi posisi bola
+ball_pos = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
+ball_speed = [random.choice([-0.2, 0.2]), random.choice([-0.2, 0.2])]
+
+# Variabel game loop
+running = True
+
+# Main game loop
+while running:
+    # Menangani event
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Menggerakkan paddle pemain
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w] and player_paddle_pos[1] > 0:
+        player_paddle_pos[1] -= PADDLE_SPEED
+    if keys[pygame.K_s] and player_paddle_pos[1] < SCREEN_HEIGHT - 120:
+        player_paddle_pos[1] += PADDLE_SPEED
+
+    # Update posisi bola
+    ball_pos[0] += ball_speed[0]
+    ball_pos[1] += ball_speed[1]
+
+    # Memantulkan bola saat bertabrakan dengan batas atas atau bawah
+    if ball_pos[1] >= SCREEN_HEIGHT - 20 or ball_pos[1] <= 0:
+        ball_speed[1] = -ball_speed[1]
+
+    # Memantulkan bola saat bertabrakan dengan paddle
+    if ball_pos[0] <= player_paddle_pos[0] + 20 and \
+            player_paddle_pos[1] <= ball_pos[1] <= player_paddle_pos[1] + 120:
+        ball_speed[0] = -ball_speed[0]
+
+    if ball_pos[0] >= enemy_paddle_pos[0] - 20 and \
+            enemy_paddle_pos[1] <= ball_pos[1] <= enemy_paddle_pos[1] + 120:
+        ball_speed[0] = -ball_speed[0]
+
+    # Menggambar objek di layar
+    screen.fill(BLACK)
+    pygame.draw.rect(screen, WHITE, pygame.Rect(player_paddle_pos[0], player_paddle_pos[1], 20, 120))
+    pygame.draw.rect(screen, WHITE, pygame.Rect(enemy_paddle_pos[0], enemy_paddle_pos[1], 20, 120))
+    pygame.draw.ellipse(screen, WHITE, pygame.Rect(ball_pos[0], ball_pos[1], 20, 20))
+
+    # Memperbarui layar
+    pygame.display.flip()
+
+    # Mengatur kecepatan frame
+    pygame.time.Clock().tick(60)
+
+# Keluar dari Pygame
+pygame.quit()
